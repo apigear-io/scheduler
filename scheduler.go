@@ -18,6 +18,7 @@ type scheduler struct {
 	jobs      jobArray
 	tickRate  time.Duration
 	isRunning bool
+	onTick    func(t, dt int64)
 }
 
 // New creates a new scheduler.
@@ -55,21 +56,29 @@ func (s *scheduler) loop() {
 			timeNow = time.Now().UnixMilli()
 			tickDelta = timeNow - timeStart
 			tickNow += tickDelta
-			s.onTick(tickNow, tickDelta)
+			s.doTick(tickNow, tickDelta)
 		case <-s.done:
 			return
 		}
 	}
 }
 
-func (s *scheduler) onTick(t, dt int64) {
+// OnTick is called on every tick.
+func (s *scheduler) OnTick(f func(t, dt int64)) {
+	s.onTick = f
+}
+
+func (s *scheduler) doTick(t, dt int64) {
+	if s.onTick != nil {
+		s.onTick(t, dt)
+	}
 	for _, j := range s.jobs {
 		if !j.Valid() {
 			s.jobs.Remove(j)
 			continue
 		}
-		if j.Tick(t, dt) {
-			j.Run()
+		if j.Tick(t) {
+			j.Run(t)
 		}
 		if j.Finished() {
 			s.jobs.Remove(j)

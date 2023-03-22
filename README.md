@@ -8,6 +8,8 @@ When a job is finished the job will automatically be removed from the scheduler.
 
 The scheduler reschedules the job to run at the next interval, if it is repeated or runs forever. If a job is scheduled in the past it will run immediately.
 
+This scheduler is inspired by Go-Cron (https://github.com/jasonlvhit/gocron). It is a great cron-scheduler but I wanted to have something more lean and no need for time and location support. Something which can be used to drive a world simulation.
+
 ## Installation
 
 ```bash

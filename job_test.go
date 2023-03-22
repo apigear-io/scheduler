@@ -8,7 +8,7 @@ import (
 )
 
 func TestJobTimes(t *testing.T) {
-	j := NewJob().Do(func() {}).Repeat(3)
+	j := NewJob().Do(func(int64, int64) {}).Repeat(3)
 	assert.Equal(t, int64(3), j.repeat)
 	assert.Equal(t, false, j.forever)
 	assert.Equal(t, int64(0), j.interval)
@@ -17,7 +17,7 @@ func TestJobTimes(t *testing.T) {
 }
 
 func TestJobInterval(t *testing.T) {
-	j := NewJob().Do(func() {}).After(time.Second)
+	j := NewJob().Do(func(int64, int64) {}).After(time.Second)
 	assert.Equal(t, int64(1000), j.interval)
 	assert.Equal(t, false, j.forever)
 	assert.Equal(t, int64(1), j.repeat)
@@ -26,7 +26,7 @@ func TestJobInterval(t *testing.T) {
 }
 
 func TestJobForever(t *testing.T) {
-	j := NewJob().Do(func() {}).Every(time.Second)
+	j := NewJob().Do(func(int64, int64) {}).Every(time.Second)
 	assert.Equal(t, int64(1000), j.interval)
 	assert.Equal(t, true, j.forever)
 	assert.Equal(t, int64(0), j.repeat)
@@ -35,13 +35,13 @@ func TestJobForever(t *testing.T) {
 }
 
 func TestJobTag(t *testing.T) {
-	j := NewJob().Do(func() {}).Tag("tag1", "tag2")
+	j := NewJob().Do(func(int64, int64) {}).Tag("tag1", "tag2")
 	assert.Equal(t, true, j.tags["tag1"])
 	assert.Equal(t, true, j.tags["tag2"])
 }
 
 func TestJobUntag(t *testing.T) {
-	j := NewJob().Do(func() {}).Tag("tag1", "tag2").Untag("tag1")
+	j := NewJob().Do(func(int64, int64) {}).Tag("tag1", "tag2").Untag("tag1")
 	assert.Equal(t, false, j.tags["tag1"])
 	assert.Equal(t, true, j.tags["tag2"])
 }
@@ -50,7 +50,7 @@ func TestJobNotValid(t *testing.T) {
 	assert.Equal(t, false, j.Valid())
 	j.Do(nil)
 	assert.Equal(t, false, j.Valid())
-	j.Do(func() {})
+	j.Do(func(int64, int64) {})
 	assert.Equal(t, false, j.Valid())
 	j.After(time.Second)
 	assert.Equal(t, true, j.Valid())

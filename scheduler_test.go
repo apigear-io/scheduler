@@ -25,7 +25,7 @@ func TestSchedulerRun(t *testing.T) {
 func TestSchedulerRunAfter(t *testing.T) {
 	s := New(time.Millisecond * 10)
 	hasRun := false
-	s.CreateJob().Do(func() {
+	s.CreateJob().Do(func(t, dt int64) {
 		hasRun = true
 	}).After(time.Millisecond * 10)
 	s.Run()
@@ -41,7 +41,7 @@ func TestSchedulerRunAfter(t *testing.T) {
 func TestSchedulerRunEvery(t *testing.T) {
 	s := New(time.Millisecond * 10)
 	runCount := 0
-	s.CreateJob().Do(func() {
+	s.CreateJob().Do(func(t, dt int64) {
 		runCount++
 	}).Every(time.Millisecond * 10)
 	s.Run()
@@ -57,7 +57,7 @@ func TestSchedulerRunEvery(t *testing.T) {
 func TestSchedulerRunRepeat(t *testing.T) {
 	s := New(time.Millisecond * 10)
 	runCount := 0
-	s.CreateJob().Do(func() {
+	s.CreateJob().Do(func(t, dt int64) {
 		runCount++
 	}).Every(time.Millisecond * 10).Repeat(2)
 	s.Run()
@@ -75,7 +75,7 @@ func TestSchedulerRunRepeat(t *testing.T) {
 func TestSchedulerRunForever(t *testing.T) {
 	s := New(time.Millisecond * 10)
 	runCount := 0
-	s.CreateJob().Do(func() {
+	s.CreateJob().Do(func(t, dt int64) {
 		runCount++
 	}).Every(time.Millisecond * 1).Forever()
 	s.Run()

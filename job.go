@@ -14,6 +14,8 @@ type job struct {
 	tickNow int64
 	// tickRun is the tick when the job should run next.
 	tickRun int64
+	// tickLastRun is the tick when the job was last run.
+	tickLastRun int64
 	// interval is the interval in ticks between two runs.
 	interval int64
 	// repeat is the number of times the job should be repeated.
@@ -22,7 +24,7 @@ type job struct {
 	forever bool
 	// tags is a map of tags of the job.
 	tags map[string]bool
-	fn   func()
+	fn   func(int64, int64)
 }
 
 func NewJob() *job {
@@ -37,19 +39,21 @@ func NewJob() *job {
 	}
 }
 
-func (j *job) Tick(t, dt int64) bool {
+func (j *job) Tick(t int64) bool {
 	j.tickNow = t
 	return t >= j.tickRun
 }
 
-func (j *job) Run() {
+func (j *job) Run(t int64) {
+	dt := t - j.tickLastRun
+	j.tickLastRun = t
 	if !j.forever && j.repeat == 0 {
 		return
 	}
 	if j.repeat > 0 {
 		j.repeat--
 	}
-	j.fn()
+	j.fn(t, dt)
 	j.tickRun += j.interval
 }
 
@@ -110,7 +114,7 @@ func (j *job) Forever() *job {
 }
 
 // Do sets the function of the job.
-func (j *job) Do(fn func()) *job {
+func (j *job) Do(fn func(t, dt int64)) *job {
 	j.fn = fn
 	return j
 }
@@ -118,7 +122,7 @@ func (j *job) Do(fn func()) *job {
 // Now runs the job now.
 func (j *job) Now() {
 	j.tickRun = j.tickNow
-	j.Run()
+	j.Run(j.tickNow)
 }
 
 // HasTag returns true if the job has the given tag.
