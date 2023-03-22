@@ -16,7 +16,7 @@ func TestSchedulerCreateJob(t *testing.T) {
 func TestSchedulerRun(t *testing.T) {
 	s := New(time.Millisecond * 10)
 	s.CreateJob()
-	s.Run()
+	s.RunAsync()
 	assert.Equal(t, true, s.IsRunning())
 	s.Stop()
 	assert.Equal(t, false, s.IsRunning())
@@ -28,7 +28,7 @@ func TestSchedulerRunAfter(t *testing.T) {
 	s.CreateJob().Do(func(t, dt int64) {
 		hasRun = true
 	}).After(time.Millisecond * 10)
-	s.Run()
+	s.RunAsync()
 	assert.Equal(t, true, s.IsRunning())
 	time.Sleep(time.Millisecond * 20)
 	assert.Equal(t, true, hasRun)
@@ -44,7 +44,7 @@ func TestSchedulerRunEvery(t *testing.T) {
 	s.CreateJob().Do(func(t, dt int64) {
 		runCount++
 	}).Every(time.Millisecond * 10)
-	s.Run()
+	s.RunAsync()
 	assert.Equal(t, true, s.IsRunning())
 	time.Sleep(time.Millisecond * 25)
 	assert.Equal(t, 2, runCount)
@@ -60,7 +60,7 @@ func TestSchedulerRunRepeat(t *testing.T) {
 	s.CreateJob().Do(func(t, dt int64) {
 		runCount++
 	}).Every(time.Millisecond * 10).Repeat(2)
-	s.Run()
+	s.RunAsync()
 	assert.Equal(t, true, s.IsRunning())
 	time.Sleep(time.Millisecond * 25)
 	assert.Equal(t, 2, runCount)
@@ -78,7 +78,7 @@ func TestSchedulerRunForever(t *testing.T) {
 	s.CreateJob().Do(func(t, dt int64) {
 		runCount++
 	}).Every(time.Millisecond * 1).Forever()
-	s.Run()
+	s.RunAsync()
 	assert.Equal(t, true, s.IsRunning())
 	time.Sleep(time.Millisecond * 25)
 	assert.Equal(t, 2, runCount)

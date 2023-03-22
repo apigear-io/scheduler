@@ -1,20 +1,20 @@
 package scheduler
 
-// jobArray is aan array of jobs.
-type jobArray []*job
+// JobArray is aan array of jobs.
+type JobArray []*Job
 
 // Len returns the number of jobs in the array.
-func (c *jobArray) Len() int {
+func (c *JobArray) Len() int {
 	return len(*c)
 }
 
 // Append adds the job to the array.
-func (c *jobArray) Append(j *job) {
+func (c *JobArray) Append(j *Job) {
 	*c = append(*c, j)
 }
 
 // Remove removes the job from the array.
-func (c *jobArray) Remove(j *job) {
+func (c *JobArray) Remove(j *Job) {
 	for i, e := range *c {
 		if e == j {
 			*c = append((*c)[:i], (*c)[i+1:]...)
@@ -24,13 +24,13 @@ func (c *jobArray) Remove(j *job) {
 }
 
 // CreateJob creates a new job and adds it to the array.
-func (c *jobArray) CreateJob() *job {
+func (c *JobArray) CreateJob() *Job {
 	j := NewJob()
 	c.Append(j)
 	return j
 }
 
 // Clear removes all jobs from the array.
-func (c *jobArray) Clear() {
+func (c *JobArray) Clear() {
 	*c = (*c)[:0]
 }

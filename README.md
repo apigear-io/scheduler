@@ -19,10 +19,10 @@ go get github.com/apigear-io/scheduler
 ## Usage
 
 ```go
-s := scheduler.NewScheduler(time.Millisecond * 10)
-s.CreateJob().Every(time.Millisecond * 100).Do(func() {
-    fmt.Println("Hello World")
+s := scheduler.New(time.Millisecond * 10)
+s.CreateJob().Every(time.Millisecond * 100).Do(func(t, dt int64) {
+    fmt.Printf("tick: %d, delta-tick: %d\n", t, dt)
 })
-s.Start()
+s.Run()
 ```
 

@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type job struct {
+type Job struct {
 	// id is the unique identifier of the job.
 	id string
 	// tickNow is the current tick of the scheduler.
@@ -27,8 +27,8 @@ type job struct {
 	fn   func(int64, int64)
 }
 
-func NewJob() *job {
-	return &job{
+func NewJob() *Job {
+	return &Job{
 		id:       uuid.NewString(),
 		tickRun:  0,
 		interval: 0,
@@ -39,37 +39,42 @@ func NewJob() *job {
 	}
 }
 
-func (j *job) Tick(t int64) bool {
+// ID returns the unique identifier of the job.
+func (j *Job) ID() string {
+	return j.id
+}
+
+func (j *Job) Tick(t int64) bool {
 	j.tickNow = t
 	return t >= j.tickRun
 }
 
-func (j *job) Run(t int64) {
-	dt := t - j.tickLastRun
-	j.tickLastRun = t
+func (j *Job) Run(t int64) {
 	if !j.forever && j.repeat == 0 {
 		return
 	}
 	if j.repeat > 0 {
 		j.repeat--
 	}
+	dt := t - j.tickLastRun
 	j.fn(t, dt)
+	j.tickLastRun = t
 	j.tickRun += j.interval
 }
 
 // Finished returns true if the job has finished running.
-func (j *job) Finished() bool {
+func (j *Job) Finished() bool {
 	return !j.forever && j.repeat == 0
 }
 
 // Valid returns true if the job is valid.
-func (j *job) Valid() bool {
+func (j *Job) Valid() bool {
 	return j.fn != nil && j.tickRun > 0
 }
 
 // At runs the job at the given tick.
 // The job will be run at the next tick if the given tick is in the past.
-func (j *job) At(t int64) *job {
+func (j *Job) At(t int64) *Job {
 	j.tickRun = t
 	if j.repeat == 0 && !j.forever {
 		j.repeat = 1
@@ -79,7 +84,7 @@ func (j *job) At(t int64) *job {
 }
 
 // Every runs the job every interval.
-func (j *job) Every(interval time.Duration) *job {
+func (j *Job) Every(interval time.Duration) *Job {
 	j.interval = interval.Milliseconds()
 	j.tickRun = j.tickNow + j.interval
 	if j.repeat == 0 {
@@ -89,7 +94,7 @@ func (j *job) Every(interval time.Duration) *job {
 }
 
 // After runs the job after interval.
-func (j *job) After(interval time.Duration) *job {
+func (j *Job) After(interval time.Duration) *Job {
 	j.interval = interval.Milliseconds()
 	j.tickRun = j.tickNow + j.interval
 	if j.repeat == 0 && !j.forever {
@@ -100,38 +105,38 @@ func (j *job) After(interval time.Duration) *job {
 }
 
 // Repeat sets the number of times the job should be repeated.
-func (j *job) Repeat(n int64) *job {
+func (j *Job) Repeat(n int64) *Job {
 	j.repeat = n
 	j.forever = false
 	return j
 }
 
 // Forever sets the job to run forever.
-func (j *job) Forever() *job {
+func (j *Job) Forever() *Job {
 	j.repeat = 0
 	j.forever = true
 	return j
 }
 
 // Do sets the function of the job.
-func (j *job) Do(fn func(t, dt int64)) *job {
+func (j *Job) Do(fn func(t, dt int64)) *Job {
 	j.fn = fn
 	return j
 }
 
 // Now runs the job now.
-func (j *job) Now() {
+func (j *Job) Now() {
 	j.tickRun = j.tickNow
 	j.Run(j.tickNow)
 }
 
 // HasTag returns true if the job has the given tag.
-func (j *job) HasTag(tag string) bool {
+func (j *Job) HasTag(tag string) bool {
 	return j.tags[tag]
 }
 
 // Tags returns a slice of all tags of the job.
-func (j *job) TagList() []string {
+func (j *Job) TagList() []string {
 	tags := make([]string, 0, len(j.tags))
 	for tag := range j.tags {
 		tags = append(tags, tag)
@@ -140,7 +145,7 @@ func (j *job) TagList() []string {
 }
 
 // Tag returns a new job with the given tag.
-func (j *job) Tag(tag ...string) *job {
+func (j *Job) Tag(tag ...string) *Job {
 	for _, tag := range tag {
 		j.tags[tag] = true
 	}
@@ -148,7 +153,7 @@ func (j *job) Tag(tag ...string) *job {
 }
 
 // Untag returns a new job without the given tag.
-func (j *job) Untag(tag ...string) *job {
+func (j *Job) Untag(tag ...string) *Job {
 	for _, tag := range tag {
 		delete(j.tags, tag)
 	}
@@ -156,7 +161,7 @@ func (j *job) Untag(tag ...string) *job {
 }
 
 // String returns a string representation of the job.
-func (j *job) String() string {
+func (j *Job) String() string {
 	return fmt.Sprintf("Job{id:%s, tickNow:%d, tickRun:%d, interval:%d, repeat:%d, forever:%t, tags:%v}",
 		j.id, j.tickNow, j.tickRun, j.interval, j.repeat, j.forever, j.tags)
 }
