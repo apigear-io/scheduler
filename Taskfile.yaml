@@ -12,6 +12,7 @@ tasks:
   clean:
     desc: Clean the project
     cmds:
+      - go mod tidy
       - rm -rf bin
   test:
     desc: Run tests

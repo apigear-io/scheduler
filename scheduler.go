@@ -2,8 +2,6 @@ package scheduler
 
 import (
 	"time"
-
-	"github.com/rs/zerolog/log"
 )
 
 // scheduler is a tick based scheduler.
@@ -24,7 +22,6 @@ type scheduler struct {
 
 // New creates a new scheduler.
 func New(tickRate time.Duration) *scheduler {
-	log.Info().Int64("tickRate", tickRate.Milliseconds()).Msg("NewScheduler")
 	return &scheduler{
 		tickRate: tickRate,
 		done:     make(chan bool),
@@ -33,7 +30,6 @@ func New(tickRate time.Duration) *scheduler {
 
 // Run starts the scheduler.
 func (s *scheduler) Run() {
-	log.Info().Msg("Scheduler.Run")
 	s.isRunning = true
 	go s.loop()
 }
@@ -56,7 +52,6 @@ func (s *scheduler) loop() {
 	for {
 		select {
 		case <-ticker.C:
-			log.Info().Msg("Scheduler.tick")
 			timeNow = time.Now().UnixMilli()
 			tickDelta = timeNow - timeStart
 			tickNow += tickDelta
@@ -68,19 +63,15 @@ func (s *scheduler) loop() {
 }
 
 func (s *scheduler) onTick(t, dt int64) {
-	log.Info().Int64("dt", dt).Msg("Scheduler.onTick")
 	for _, j := range s.jobs {
 		if !j.Valid() {
-			log.Info().Msg("Scheduler.onTick: job is not valid. removed")
 			s.jobs.Remove(j)
 			continue
 		}
 		if j.Tick(t, dt) {
-			log.Info().Msg("Scheduler.onTick: job shall run")
 			j.Run()
 		}
 		if j.Finished() {
-			log.Info().Msg("Scheduler.onTick: job finished. removed")
 			s.jobs.Remove(j)
 		}
 	}
