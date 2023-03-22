@@ -1,0 +1,23 @@
+version: 3
+
+tasks:
+  build:
+    desc: Build the project
+    cmds:
+      - go build -o bin/simu cmd/simu/main.go
+  run:
+    desc: Run the project
+    cmds:
+      - go run cmd/simu/main.go
+  clean:
+    desc: Clean the project
+    cmds:
+      - rm -rf bin
+  test:
+    desc: Run tests
+    cmds:
+      - go test ./...
+  lint:
+    desc: Run linters
+    cmds:
+      - golangci-lint run
